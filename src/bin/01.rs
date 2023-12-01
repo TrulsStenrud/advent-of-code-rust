@@ -3,9 +3,9 @@ advent_of_code::solution!(1);
 
 pub fn part_one(input: &str) -> Option<u32> {
     Some(input.lines().map(|line| {
-        let first = line.chars().find(|char| char.is_numeric()).unwrap();
-        let last = line.chars().rev().find(|char| char.is_numeric()).unwrap();
-        format!("{}{}", first, last).parse::<u32>().unwrap()
+        let first = line.chars().find(|char| char.is_numeric()).expect("To be a first");
+        let last = line.chars().rev().find(|char| char.is_numeric()).expect("To be a last");
+        format!("{}{}", first, last).parse::<u32>().expect("To be a number")
     }).sum())
 }
 
@@ -13,7 +13,7 @@ fn find_first(input: &str, map: &[(String, char); 20]) -> char {
     map.iter().min_by_key(|(text, _)|{
             input.match_indices(text).find(|_| true).unwrap_or((1111111, "")).0
         }
-        ).unwrap().1
+        ).expect("To be a lowest").1
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -48,7 +48,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         let reversed = line.chars().rev().collect::<String>();
         let last = find_first(&reversed, &reversed_thing);
         
-        format!("{}{}", first, last).parse::<u32>().unwrap()
+        format!("{}{}", first, last).parse::<u32>().expect("To be a number")
     }).sum())
 }
 
@@ -60,13 +60,13 @@ mod tests {
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
 
-        assert_eq!(result, None);
+        assert_eq!(result, Some(242));
     }
 
     #[test]
     fn test_part_two() {
-        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
         
-        assert_eq!(result, None);
+        assert_eq!(result, Some(281));
     }
 }
