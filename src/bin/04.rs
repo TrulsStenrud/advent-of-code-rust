@@ -3,20 +3,19 @@ use std::u32;
 advent_of_code::solution!(4);
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let mut winners:Vec<u32> = vec![];
+    let mut winners = [false; 100];
     let mut is_winners = true;
     let mut win_count = 0;
     Some(input.lines().map( | line| {
-        winners = vec![];
+        winners = [false; 100];
         is_winners = true;
         win_count = 0;
         line.split_whitespace().skip(2).for_each(|number|{
             if number == "|"{
                 is_winners = false;
-                
             } else if is_winners{
-                winners.push(number.parse().unwrap());
-            } else if winners.contains(&number.parse().unwrap()){
+                winners[number.parse::<usize>().unwrap()]=true;
+            } else if winners[number.parse::<usize>().unwrap()]{
                 win_count+=1
             }
         });
@@ -38,19 +37,19 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut index = 0;
     let mut cards = vec![1; input.lines().count()];
 
-    let mut winners:Vec<u32> = vec![];        
+    let mut winners = [false; 100]; 
     let mut is_winners = true;
     let mut win_count = 0;
     input.lines().for_each( | line| {
-        winners = vec![];        
+        winners = [false; 100]; 
         is_winners = true;
         win_count = 0;
         line.split_whitespace().skip(2).for_each(|number|{
             if number == "|"{
                 is_winners = false;
             } else if is_winners{
-                winners.push(number.parse().unwrap());
-            } else if winners.contains(&number.parse().unwrap()){
+                winners[number.parse::<usize>().unwrap()]=true;
+            } else if winners[number.parse::<usize>().unwrap()]{
                 win_count+=1
             }
         });
