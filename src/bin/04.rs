@@ -3,32 +3,31 @@ use std::u32;
 advent_of_code::solution!(4);
 
 pub fn part_one(input: &str) -> Option<u32> {
-    
+    let mut winners:Vec<u32> = vec![];
+    let mut is_winners = true;
+    let mut win_count = 0;
     Some(input.lines().map( | line| {
-                
-        let mut winners:Vec<u32> = [].to_vec();        
-        let mut is_winners = true;
-        let mut win_count = 0;
-
+        winners = vec![];
+        is_winners = true;
+        win_count = 0;
         line.split_whitespace().skip(2).for_each(|number|{
             if number == "|"{
                 is_winners = false;
+                
             } else if is_winners{
-                winners.push(number.parse::<u32>().expect("To be a number"));
-            } else if winners.contains(&number.parse::<u32>().expect("To be a number")){
+                winners.push(number.parse().unwrap());
+            } else if winners.contains(&number.parse().unwrap()){
                 win_count+=1
             }
         });
         
-        let result = if win_count > 0
+        if win_count > 0
         {
             (2 as u32).pow(win_count-1)
         }
         else {
             0
-        };
-
-        result 
+        }
     }).sum())
 
 
@@ -39,16 +38,19 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut index = 0;
     let mut cards = vec![1; input.lines().count()];
 
+    let mut winners:Vec<u32> = vec![];        
+    let mut is_winners = true;
+    let mut win_count = 0;
     input.lines().for_each( | line| {
-        let mut winners:Vec<u32> = [].to_vec();        
-        let mut is_winners = true;
-        let mut win_count = 0;
+        winners = vec![];        
+        is_winners = true;
+        win_count = 0;
         line.split_whitespace().skip(2).for_each(|number|{
             if number == "|"{
                 is_winners = false;
             } else if is_winners{
-                winners.push(number.parse::<u32>().expect("To be a number"));
-            } else if winners.contains(&number.parse::<u32>().expect("To be a number")){
+                winners.push(number.parse().unwrap());
+            } else if winners.contains(&number.parse().unwrap()){
                 win_count+=1
             }
         });
