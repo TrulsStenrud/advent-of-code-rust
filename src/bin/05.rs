@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 advent_of_code::solution!(5);
 
@@ -144,8 +144,104 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(*seeds.iter().min().unwrap() as u32)
 }
 
+
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    
+    let mut seeds: Vec<[u64;2]>= vec![];
+
+    let mut maps: Vec<Vec<[u64;3]>> = vec![];
+    
+    let mut word = None;
+    input.lines().for_each(| line |{
+
+
+        let mut words = line.split_whitespace();
+        
+        word = words.next();
+        match word{
+            Some("seeds:")=> {
+                while let (Some(from), Some(length)) = (words.next(), words.next())   {
+                    let start = from.parse().unwrap();
+                    seeds.push([start, start + length.parse::<u64>().unwrap()]);
+                }
+            }
+            Some("seed-to-soil")|
+            Some("soil-to-fertilizer")|
+            Some("fertilizer-to-water")|
+            Some("water-to-light")|
+            Some("light-to-temperature")|
+            Some("temperature-to-humidity")|
+            Some("humidity-to-location")=> {
+                maps.push(vec![]);
+            }
+            None => {
+                // Assuming empty line
+            }
+            _ => {                
+                maps.last_mut().unwrap().push([word.unwrap().parse().unwrap(), 
+                words.next().unwrap().parse().unwrap(), 
+                words.next().unwrap().parse().unwrap()]);
+
+            }
+        };
+
+    });
+
+
+    let mut next: Vec<[u64;2]>= vec![];
+
+    
+    maps.iter().for_each(|map|{
+        seeds.iter().for_each(|seed|{
+            map_to_next(seed, map).iter().for_each(|new_seed|{
+                next.push(*new_seed);
+            });
+        });
+
+        seeds = next.clone();
+        next = vec![];
+    });
+    
+    Some(seeds.iter().map(|seed| seed[0]).min().unwrap() as u32)
+}
+
+fn map_to_next(input: &[u64;2], maps: &Vec<[u64;3]>) -> Vec<[u64;2]>{
+    let mut filtered:Vec<[u64;2]> = vec![];
+        
+    let start = input[0];
+    let stop = input[1];
+    maps.iter().for_each(|it|{
+        let target = it[0];
+        let source = it[1];
+        let range = it[2];
+            if start >= source && stop <= source + range{
+                // hele er inne i map 
+                filtered.push([target + (start - source), target + stop - source]);
+            }else if start >= source && start < source + range && stop > source + range{
+                // starter inne i map, slutter utenfor
+                filtered.push([target + (start-source), target+range]);
+                map_to_next(&[source+range, stop], maps).iter()
+                .for_each(|seed| filtered.push(*seed));
+                
+            } else if start < source && stop > source && stop < source+range {
+                // starter før, slutter inne i map
+                map_to_next(&[start, source], maps).iter()
+                .for_each(|seed| filtered.push(*seed));
+                filtered.push([target, target + (stop - source)]);                        
+            }
+            else if start < source && stop > source+range {
+                // starter før, slutter etter
+                map_to_next(&[start, source], maps).iter()
+                .for_each(|seed| filtered.push(*seed));
+                map_to_next(&[source+range, stop], maps).iter()
+                .for_each(|seed| filtered.push(*seed));
+                filtered.push([target, target+range]);
+            }
+    });
+    
+    if filtered.is_empty() {filtered.push(*input)}
+    
+    filtered
 }
 
 #[cfg(test)]
@@ -161,6 +257,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(true, true);        
+        assert_eq!(result, Some(46));              
     }
 }
