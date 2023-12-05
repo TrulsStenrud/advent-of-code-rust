@@ -135,7 +135,6 @@ pub fn part_one(input: &str) -> Option<u32> {
             }
         });
     
-        
         seeds = next.clone();
         next = vec![];
     });
@@ -148,10 +147,9 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     
     let mut seeds: Vec<[u64;2]>= vec![];
-
     let mut maps: Vec<Vec<[u64;3]>> = vec![];
-    
     let mut word = None;
+
     input.lines().for_each(| line |{
 
 
@@ -174,9 +172,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             Some("humidity-to-location")=> {
                 maps.push(vec![]);
             }
-            None => {
-                // Assuming empty line
-            }
+            None => {}
             _ => {                
                 maps.last_mut().unwrap().push([word.unwrap().parse().unwrap(), 
                 words.next().unwrap().parse().unwrap(), 
@@ -184,18 +180,14 @@ pub fn part_two(input: &str) -> Option<u32> {
 
             }
         };
-
     });
 
 
     let mut next: Vec<[u64;2]>= vec![];
-
     
     maps.iter().for_each(|map|{
         seeds.iter().for_each(|seed|{
-            map_to_next(seed, map).iter().for_each(|new_seed|{
-                next.push(*new_seed);
-            });
+            next.append(&mut map_to_next(seed, map));
         });
 
         seeds = next.clone();
@@ -220,21 +212,17 @@ fn map_to_next(input: &[u64;2], maps: &Vec<[u64;3]>) -> Vec<[u64;2]>{
             }else if start >= source && start < source + range && stop > source + range{
                 // starter inne i map, slutter utenfor
                 filtered.push([target + (start-source), target+range]);
-                map_to_next(&[source+range, stop], maps).iter()
-                .for_each(|seed| filtered.push(*seed));
+                filtered.append(&mut map_to_next(&[source+range, stop], maps));
                 
             } else if start < source && stop > source && stop < source+range {
                 // starter før, slutter inne i map
-                map_to_next(&[start, source], maps).iter()
-                .for_each(|seed| filtered.push(*seed));
+                filtered.append(&mut map_to_next(&[start, source], maps));
                 filtered.push([target, target + (stop - source)]);                        
             }
             else if start < source && stop > source+range {
                 // starter før, slutter etter
-                map_to_next(&[start, source], maps).iter()
-                .for_each(|seed| filtered.push(*seed));
-                map_to_next(&[source+range, stop], maps).iter()
-                .for_each(|seed| filtered.push(*seed));
+                filtered.append(&mut map_to_next(&[start, source], maps));
+                filtered.append(&mut map_to_next(&[source+range, stop], maps));
                 filtered.push([target, target+range]);
             }
     });
