@@ -36,13 +36,57 @@ pub fn part_two(input: &str) -> Option<u32> {
         let mut start = distance/time;
         let mut stop = time - start;
 
-        while test_run_big(start, time)<= distance {
-            start+=1;
-        }
-        while test_run_big(stop, time)<= distance {
-            stop-=1;
-        }
+        let temp = (stop - start ) / 2;
+        let middle = start + temp;
+        let mut keep_koing = true;
         
+        let mut p = middle;
+        
+        while keep_koing {
+            let current_hold = (start + p)/2;
+            let current_value = test_run_big(current_hold, time);
+            
+            if current_value > distance{
+                p = current_hold;
+            } else if current_value < distance{
+                if start == current_hold{
+                    keep_koing = false;                    
+                }
+                else{
+                    start = current_hold;
+                }
+            } else {
+                start = current_hold + 1;
+                keep_koing = false;
+            }
+        }
+        start+=1;
+        
+        
+        p = middle;
+
+        keep_koing = true;
+        while keep_koing {
+            let current_hold = (p + stop)/2;
+            let current_value = test_run_big(current_hold, time);
+
+            if current_value > distance{
+                if p == current_hold{
+                    keep_koing = false
+                }
+                p = current_hold;
+            } else if current_value < distance{
+                if stop == current_hold{
+                    keep_koing = false
+                }
+                stop = current_hold;
+            } else {
+                stop = current_hold - 1;
+                keep_koing = false;
+            }
+        }
+        stop-=1;
+
     Some((stop - start + 1) as u32)
 }
 
