@@ -33,15 +33,8 @@ pub fn part_two(input: &str) -> Option<u32> {
     let time = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
     let distance = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
         
-        let mut start = (distance/time);
-        let mut stop = time - (distance/time);
-
-        
-        println!("Time: {}", time);
-        println!("Distance: {}", distance);
-
-        println!("Start: {}", start);
-        println!("Stop: {}", stop);
+        let mut start = distance/time;
+        let mut stop = time - start;
 
         while test_run_big(start, time)<= distance {
             start+=1;
@@ -49,9 +42,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         while test_run_big(stop, time)<= distance {
             stop-=1;
         }
-
-        println!("Start: {}", start);
-        println!("Stop: {}", stop);
+        
     Some((stop - start + 1) as u32)
 }
 
