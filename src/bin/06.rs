@@ -30,8 +30,8 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     let mut lines = input.lines();
-    let time = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
-    let distance = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
+    let time = lines.next().unwrap().split_whitespace().skip(1).collect::<String>().parse::<u64>().unwrap();
+    let distance = lines.next().unwrap().split_whitespace().skip(1).collect::<String>().parse::<u64>().unwrap();
     
     let v = (time.pow(2) as f64 - 4f64 * distance as f64).sqrt();
     Some(((0.5 * (time as f64 + v)).ceil() - (0.5 * (time as f64 - v)).ceil())as u32)
