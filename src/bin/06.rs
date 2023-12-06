@@ -4,6 +4,10 @@ fn test_run(hold_seconds: u32, total_time: u32)->u32{
     hold_seconds * (total_time - hold_seconds)
 }
 
+fn test_run_big(hold_seconds: u64, total_time: u64)->u64{
+    hold_seconds * (total_time - hold_seconds)
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
     let mut lines = input.lines();
     let times = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.parse::<u32>().unwrap());
@@ -13,7 +17,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     times.enumerate().map(|(index, time)|{
         let distance = distances[index];
         
-        (1..time)
+        ((distance/time) as u32..time - (distance/time))
         .filter(|test_hold| test_run(*test_hold, time)> distance)
         .count()
     })
@@ -25,8 +29,16 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
+    let mut lines = input.lines();
+    let time = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
+    let distance = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
+        
+    let a =((distance/time) as u64..time - (distance/time))
+    .filter(|test_hold| test_run_big(*test_hold, time)> distance)
+    .count();
 
-    None
+
+    Some(a as u32)
 }
 
 #[cfg(test)]
@@ -35,13 +47,13 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, Some(288));
+         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+         assert_eq!(result, Some(288));
     }
 
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(71503));
     }
 }
