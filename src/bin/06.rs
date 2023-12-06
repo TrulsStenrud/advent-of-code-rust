@@ -34,7 +34,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let distance = lines.next().unwrap().split_whitespace().skip(1).map(|it| it.to_string()).collect::<Vec<String>>().join("").parse::<u64>().unwrap();
     
     let v = (time.pow(2) as f64 - 4f64 * distance as f64).sqrt();
-    Some(((0.5 * (time as f64 + v)).ceil() as u64 - (0.5 * (time as f64 - v)).ceil() as u64)as u32)
+    Some(((0.5 * (time as f64 + v)).ceil() - (0.5 * (time as f64 - v)).ceil())as u32)
 }
 
 pub fn part_two_binary_search(input: &str) -> Option<u32> {
