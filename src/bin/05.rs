@@ -160,10 +160,11 @@ pub fn part_two(input: &str) -> Option<u32> {
             if first_char.is_alphabetic(){
             maps.push(vec![]);
         } else if first_char.is_numeric(){
-            let mut thing = line.split_whitespace();
-            maps.last_mut().unwrap().push([thing.next().unwrap().parse().unwrap(), 
-            thing.next().unwrap().parse().unwrap(), 
-            thing.next().unwrap().parse().unwrap()]);
+            let mut numbers = line.split_whitespace();
+            maps.last_mut().unwrap().push([
+                numbers.next().unwrap().parse().unwrap(), 
+                numbers.next().unwrap().parse().unwrap(), 
+                numbers.next().unwrap().parse().unwrap()]);
         }}
     });
 
