@@ -56,7 +56,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(counter as u32)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<u64> {
     let mut lines = input.lines();
 
     let go_right_sequence: Vec<bool> = lines.next().unwrap().chars().map(|char| char == 'R').collect();
@@ -90,21 +90,59 @@ pub fn part_two(input: &str) -> Option<u32> {
         }
     }).collect::<Vec<IntDirections>>();
     
-    let mut counter = 0;
-    let mut positions:Vec<usize> = start_positions.iter().map(|pos| location_to_index[pos]).collect();
-    while !positions.iter().all(|pos| int_directions[*pos].this.ends_with('Z')) {
+    let positions:Vec<usize> = start_positions.iter().map(|pos| location_to_index[pos]).collect();
+
+    let a = positions.iter().map(|start|{
+        let mut counter = 0;
+        let mut position = *start; 
         
-        for i in 0..positions.len(){
+        while !int_directions[position].this.ends_with('Z') {
             if go_right_sequence[counter % go_right_sequence.len()]{
-                positions[i] = int_directions[positions[i]].right;
+                position = int_directions[position].right;
             }else {
-                positions[i] = int_directions[positions[i]].left;
+                position = int_directions[position].left;
             }
+            counter+=1;
         }
-        counter+=1;
+
+        counter as u64
+    }).collect::<Vec<u64>>();
+
+    // a.iter().for_each(|v| println!("{}", v));
+    
+
+    Some(lcm_of_vector(a))
+}
+
+fn gcd(mut a: u64, mut b: u64) -> u64 {
+    while b != 0 {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    a
+}
+
+fn lcm(a: u64, b: u64) -> u64 {
+    if a == 0 || b == 0 {
+        0
+    } else {
+        (a * b) / gcd(a, b)
+    }
+}
+
+fn lcm_of_vector(values: Vec<u64>) -> u64 {
+    if values.is_empty() {
+        panic!("Input vector is empty");
     }
 
-    Some(counter as u32)
+    let mut result = values[0];
+    
+    for &value in values.iter().skip(1) {
+        result = lcm(result, value);
+    }
+
+    result
 }
 
 #[cfg(test)]
