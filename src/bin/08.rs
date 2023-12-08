@@ -92,7 +92,7 @@ pub fn part_two(input: &str) -> Option<u64> {
     
     let positions:Vec<usize> = start_positions.iter().map(|pos| location_to_index[pos]).collect();
 
-    let a = positions.iter().map(|start|{
+    let lentghs = positions.iter().map(|start|{
         let mut counter = 0;
         let mut position = *start; 
         
@@ -106,12 +106,9 @@ pub fn part_two(input: &str) -> Option<u64> {
         }
 
         counter as u64
-    }).collect::<Vec<u64>>();
+    }).collect::<Vec<u64>>();    
 
-    // a.iter().for_each(|v| println!("{}", v));
-    
-
-    Some(lcm_of_vector(a))
+    Some(lcm_of_vector(lentghs))
 }
 
 fn gcd(mut a: u64, mut b: u64) -> u64 {
