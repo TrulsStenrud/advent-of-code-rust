@@ -4,21 +4,40 @@ advent_of_code::solution!(11);
 
 pub fn part_one(input: &str) -> Option<u32> {
 
-    let mut maxX = 0;
-    let mut maxY = 0;
     let mut galaxies: Vec<[usize; 2]> = vec![];
+    let mut extra_x = 0;   
+        
+    let mut max_y = 0;
+    let mut min_y =usize::MAX;
+    
+    let mut existing_y:HashSet<usize> = HashSet::new();
     input.lines().enumerate().for_each(|(line_nr, line)|{
+        let mut is_empty = true;
+    
         line.chars().enumerate().for_each(|(c_nr, c)|{
+    
             if c == '#'{
-                galaxies.push([line_nr, c_nr]);
-                maxX = usize::max(maxX, line_nr);
-                maxY = usize::max(maxY, c_nr);
+                is_empty = false;
+                
+                max_y = max_y.max(c_nr);
+                min_y = min_y.min(c_nr);
+
+                galaxies.push([line_nr + extra_x, c_nr]); 
+                existing_y.insert(c_nr);
             }
         });
+        if is_empty{
+            extra_x += 1
+        }
     });
 
-    let existing_x = galaxies.iter().map(|it| it[0]).collect::<HashSet<_>>();
-    let existing_y = galaxies.iter().map(|it| it[1]).collect::<HashSet<_>>();
+    let spacers = (min_y..max_y).filter(|it| {
+            !existing_y.contains(it)
+        }).collect::<Vec<_>>();
+
+    for i in 0..galaxies.len(){
+        galaxies[i][1] +=spacers.iter().filter(|x| x < &&galaxies[i][1]).count();
+    }
 
     let mut sum = 0;
 
@@ -26,17 +45,11 @@ pub fn part_one(input: &str) -> Option<u32> {
         for j in (i+1)..galaxies.len(){
             let start = galaxies[i];
             let stop = galaxies[j];
-
             
             let diff_x = start[0].max(stop[0]) - start[0].min(stop[0]);
             let diff_y = start[1].max(stop[1]) - start[1].min(stop[1]);
-            let extra_x = ((start[0].min(stop[0])+1)..(start[0].max(stop[0])))
-            .filter(|x|!existing_x.contains(x)).count();
-        
-            let extra_y = ((start[1].min(stop[1])+1)..(start[1].max(stop[1])))
-            .filter(|x|!existing_y.contains(x)).count();
 
-        sum+= diff_x + diff_y + extra_x + extra_y
+            sum+= diff_x + diff_y
         }
     };
 
