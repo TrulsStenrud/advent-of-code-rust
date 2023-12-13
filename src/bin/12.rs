@@ -62,26 +62,27 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    Some(
-        input.lines().map(|line|{
-            let mut thing = line.split_whitespace();
+    // Some(
+    //     input.lines().map(|line|{
+    //         let mut thing = line.split_whitespace();
             
-            let _part_one = thing.next().unwrap();
-            let mut _part_two = thing.next().unwrap().split(',').map(|x| x.parse::<u32>().unwrap()).collect::<Vec<_>>();
+    //         let _part_one = thing.next().unwrap();
+    //         let mut _part_two = thing.next().unwrap().split(',').map(|x| x.parse::<u32>().unwrap()).collect::<Vec<_>>();
 
-            let part_one = format!("{}?{}?{}?{}?{}", _part_one,_part_one,_part_one,_part_one,_part_one);
-            let mut  part_two:Vec<u32> = vec![];
-            for _ in 0..5{
-                _part_two.iter().for_each(|it|{
-                    part_two.push(*it);
-                });
-            }
+    //         let part_one = format!("{}?{}?{}?{}?{}", _part_one,_part_one,_part_one,_part_one,_part_one);
+    //         let mut  part_two:Vec<u32> = vec![];
+    //         for _ in 0..5{
+    //             _part_two.iter().for_each(|it|{
+    //                 part_two.push(*it);
+    //             });
+    //         }
 
-            println!("Starting {}", line);
+    //         println!("Starting {}", line);
             
-            do_this_shit(&part_one, &part_two)
-        }).sum()
-    )
+    //         do_this_shit(&part_one, &part_two)
+    //     }).sum()
+    // )
+    None
 }
 
 fn do_this_shit(input: &String, thing: &Vec<u32>) -> u32{
