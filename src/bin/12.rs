@@ -56,9 +56,7 @@ pub fn part_one(input: &str) -> Option<u32> {
             let part_one = thing.next().unwrap();
             let part_two = thing.next().unwrap().split(',').map(|x| x.parse::<u32>().unwrap()).collect::<Vec<_>>();
 
-            get_iterations(part_one).iter().filter(|it|{
-                check(it, &part_two)
-            }).count() as u32
+            do_this_shit(&part_one.to_string(), &part_two)
         }).sum()
     )
 }
@@ -81,11 +79,15 @@ pub fn part_two(input: &str) -> Option<u32> {
 
             println!("Starting {}", line);
             
-            get_iterations(&part_one).iter().filter(|it|{
-                check(it, &part_two)
-            }).count() as u32
+            do_this_shit(&part_one, &part_two)
         }).sum()
     )
+}
+
+fn do_this_shit(input: &String, thing: &Vec<u32>) -> u32{
+     get_iterations(&input).iter().filter(|it|{
+                check(it, &thing)
+            }).count() as u32
 }
 
 #[cfg(test)]
