@@ -218,7 +218,6 @@ fn find_repeating(v: &Vec<u32>) -> Option<(usize,Vec<u32>)> {
             
         }
         if res.len() == n{
-            println!("Length was {}", res.len());
             return Some((len - n, res));
         }else{
             // println!("Length was {}, not {}", res.len(), n);
