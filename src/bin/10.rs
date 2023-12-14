@@ -18,6 +18,7 @@ fn get_neighbours(pos: (usize, usize), map: &Vec<Vec<char>>)->Vec<(usize, usize)
     return binding
 }
 
+
 pub fn part_one(input: &str) -> Option<u32> {
     let mut start = (usize::MAX, usize::MAX);
 
@@ -51,38 +52,52 @@ pub fn part_one(input: &str) -> Option<u32> {
         panic!();
     }
     
-    while !has_crashed(&starters[0], &starters[1]){
-        starters.iter_mut().for_each(|pos|{
-            step(pos, &map);
-        })
+    while starters[0].curr != start{
+        step(&mut starters[0], &map);       
     }
-
-    if starters[0].curr == starters[1].curr{
-        Some(starters[0].steps)
-    }
-    else{
-        Some(starters[0].steps-1)
-    }
-
-
-}
-
-
-fn has_crashed(a: &Position, b:&Position)-> bool{
-     a.curr == b.curr || a.curr == b.prev
+    Some(starters[0].steps/2)
 }
 
 fn step(pos:&mut Position,  map: &Vec<Vec<char>>){
-    let binding = get_neighbours(pos.curr, map);
-    let test = binding.iter().filter(|neighbour|{
-        is_pointing_at(pos.curr, **neighbour, map) && *neighbour != &pos.prev
-    }).collect::<Vec<_>>();
-    if test.len() != 1{
-        panic!();
+    // let binding = get_neighbours(pos.curr, map);
+    // let test = binding.iter().filter(|neighbour|{
+        
+    //     is_pointing_at(pos.curr, **neighbour, map) && *neighbour != &pos.prev
+    
+    // }).collect::<Vec<_>>();
+    
+    if pos.curr.0 != 0{
+        if is_pointing_at(pos.curr, (pos.curr.0-1, pos.curr.1), map) && (pos.curr.0-1, pos.curr.1)!= pos.prev{
+            pos.prev = pos.curr;
+            pos.curr = (pos.curr.0-1, pos.curr.1);
+            pos.steps+=1;
+            return;
+        }
     }
-    pos.prev = pos.curr;
-    pos.curr = *test[0];
-    pos.steps+=1
+    if pos.curr.1 != 0{
+        if is_pointing_at(pos.curr, (pos.curr.0, pos.curr.1-1), map) && (pos.curr.0, pos.curr.1-1)!= pos.prev{
+            pos.prev = pos.curr;
+            pos.curr = (pos.curr.0, pos.curr.1-1);
+            pos.steps+=1;
+            return;
+        }
+    }
+    if pos.curr.0 != map.len()-1{
+        if is_pointing_at(pos.curr, (pos.curr.0+1, pos.curr.1), map) && (pos.curr.0+1, pos.curr.1)!= pos.prev{
+            pos.prev = pos.curr;
+            pos.curr = (pos.curr.0+1, pos.curr.1);
+            pos.steps+=1;
+            return;
+        }
+    }
+    if pos.curr.1 != map[pos.curr.0].len()-1{
+        if is_pointing_at(pos.curr, (pos.curr.0, pos.curr.1+1), map) && (pos.curr.0, pos.curr.1+1)!= pos.prev{
+            pos.prev = pos.curr;
+            pos.curr = (pos.curr.0, pos.curr.1+1);
+            pos.steps+=1;
+            return;
+        }
+    }
 }
 
 struct Position{
@@ -117,7 +132,54 @@ fn is_pointing_at(pos: (usize, usize), target_pos: (usize, usize), map: &Vec<Vec
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let mut start = (usize::MAX, usize::MAX);
+
+    let mut map:Vec<Vec<char>> = input.lines().enumerate().map(|(x, line)|{
+        line.chars().enumerate().map(|(y, c)|{
+            if c == 'S'{
+                start = (x, y)
+            }
+            c
+        }).collect()
+    }).collect();
+
+    if start == (usize::MAX, usize::MAX){
+        panic!("Did not find start");
+    }
+   
+    let mut starters = get_neighbours(start, &map).iter()
+    .filter(|it| {
+        is_pointing_at(**it, start, &map)
+    })
+    .map(|pos|{
+        Position{
+            curr: *pos,
+            steps: 1,
+            prev: start
+        }
+    })
+    .collect::<Vec<_>>();
+
+    if starters.len() != 2{
+        panic!();
+    }
+    
+    let mut thing:Vec<Vec<u32>> = (0..map.len()).map(|_| vec![]).collect();
+
+    while starters[0].curr != start{
+        step(&mut starters[0], &map);
+        thing[starters[0].curr.0].push(starters[0].curr.1 as u32)
+        // map[starters[0].prev.0][starters[0].prev.1]= 'X';
+    }
+
+    Some(starters[0].steps/2)
+}
+
+fn count_area(map: &Vec<Vec<char>>)->u32{
+    map.iter().for_each(|line|{
+
+    });
+    3
 }
 
 #[cfg(test)]
