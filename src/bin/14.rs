@@ -1,3 +1,5 @@
+use std::collections::{HashSet, HashMap};
+
 advent_of_code::solution!(14);
 
 static ROCK:u32=0;
@@ -135,7 +137,7 @@ fn print_dish(dish: &Vec<Vec<u32>>){
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    return None;
+    
     let mut boulders: Vec<(usize, usize)> = vec![];
 
     let mut dish:Vec<Vec<u32>> = input.lines().enumerate().map(|(x, line)|{
@@ -154,30 +156,80 @@ pub fn part_two(input: &str) -> Option<u32> {
     }).collect();
 
 
-    (0..1 as u64).for_each(|i|{
-        print_dish(&dish);
+    let mut prev:Vec<u32> = vec![];
+
+    let mut i = 0;
+    let result = loop {
+        // print_dish(&dish);
+        boulders.sort_by_key(|it| it.0);
         (0..boulders.len()).for_each(|i|{
             move_boulder_north(&mut dish, &mut boulders, i);
         });
-        print_dish(&dish);
+        // print_dish(&dish);
+        boulders.sort_by_key(|it| it.1);
         (0..boulders.len()).for_each(|i|{
             move_boulder_west(&mut dish, &mut boulders, i);
         });
-        print_dish(&dish);
+        // print_dish(&dish);
+        boulders.sort_by_key(|it| -(it.0 as i32));
         (0..boulders.len()).for_each(|i|{
             move_boulder_south(&mut dish, &mut boulders, i);
         });
-        print_dish(&dish);
+        // print_dish(&dish);
+        boulders.sort_by_key(|it| -(it.1 as i32));
         (0..boulders.len()).for_each(|i|{
             move_boulder_east(&mut dish, &mut boulders, i);
         });
-        print_dish(&dish);
-    });
+        // print_dish(&dish);
+        let len = dish.len();
+        let curr_value = boulders.iter().map(|(x, _)| (len - x) as u32).sum::<u32>();
+        // println!("{}", curr_value);
+        prev.push(curr_value);
+        if i > 40{
+            if let Some(a) = find_repeating(&prev){
+                let t = 1000000000-a.0-1;
+                break  a.1[t % a.1.len()];
+            }else{
+                // println!("Did not find");
+            }
+        }
+
+        i+=1;
+    };
 
 
-    let len = dish.len();
-    Some(boulders.iter().map(|(x, _)| (len - x) as u32).sum())
+    Some(result)
+    // let len = dish.len();
+    // Some(boulders.iter().map(|(x, _)| (len - x) as u32).sum())
 }
+
+fn find_repeating(v: &Vec<u32>) -> Option<(usize,Vec<u32>)> {
+
+    let len = v.len();
+    let mut n = 10;
+    while n < v.len()/2 {
+        // println!("Checking length {}", n);
+        let mut res:Vec<u32> = vec![];
+        for i in (0..n).rev(){
+            // println!("Comparing {} and {}", v[len - 1 - i], v[len-i-1-n]);
+            if v[len - 1 - i] == v[len-1-i-n]{
+                res.push(v[len - 1 - i]);
+            }
+            
+        }
+        if res.len() == n{
+            println!("Length was {}", res.len());
+            return Some((len - n, res));
+        }else{
+            // println!("Length was {}, not {}", res.len(), n);
+        }
+        // println!();
+        n+=1;
+    }
+
+    return None
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -193,5 +245,11 @@ mod tests {
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
         assert_eq!(result, Some(64));
+
+        // let thing = find_repeating(vec![1, 1, 1, 4, 3, 2, 4, 5, 6, 5, 4, 34, 4, 5, 6, 5, 4, 4, 5, 56, 54, 4, 4, 1, 34, 4, 5, 6, 5, 4, 4, 5, 56, 54, 4, 4, 1]).unwrap();
+        // println!("Found at {}", thing.0);
+        // thing.1.iter().for_each(|it|{
+        //     println!("{}", it);
+        // });
     }
 }
