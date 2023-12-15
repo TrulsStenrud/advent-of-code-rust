@@ -24,7 +24,6 @@ pub fn part_one(input: &str) -> Option<u32> {
         match word{
             Some("seeds:")=> {
                 words.for_each(| word |{
-                    // println!("Look at number: {}", word);
                     seeds.push(word.parse().expect("To be a seed number"));
                 });
             }
@@ -175,10 +174,44 @@ pub fn part_two(input: &str) -> Option<u32> {
         seeds.iter().for_each(|seed|{
             next.append(&mut map_to_next(seed, map));
         });
-
+        next.sort_by_key(|it| it[0]);
+        
+        let mut i = 1;
+        while i < next.len() {
+            if next[i-1][1] > next[i][0]{
+                next[i-1][1] = next[i][1].max(next[i-1][1]);
+                next.remove(i);
+            }else{
+                i+=1
+            }
+        }
+        
+        // for i in 0..seeds.len(){
+        //     for j in (i+1)..seeds.len(){
+        //         let a = seeds[i];
+        //         let b = seeds[j];
+        //         if a[0] < b[0] && a[1] > b[1]{
+        //             merged.push(a);
+        //         }
+        //         else if a[0] > b[0] && a[1] < b[1]{
+        //             merged.push(b);
+        //         }else if a[0] < b[0] && a[1] > b[0] && a[1] < b[1]{
+        //             merged.push([a[0], b[1]]);
+        //         }
+        //         else if b[0] < a[0] && b[1] > a[0] && b[1] < a[1]{
+        //             merged.push([b[0], a[1]]);
+        //         }
+        //         else{
+        //             merged.push(a);
+        //             merged.push(b);
+        //         }
+        //     }
+        // }
+        
         seeds = next.clone();
         next = vec![];
     });
+
     
     Some(seeds.iter().map(|seed| seed[0]).min().unwrap() as u32)
 }
