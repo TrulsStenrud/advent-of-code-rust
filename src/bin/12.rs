@@ -102,10 +102,6 @@ fn do_this_shit(input: &String, thing: &Vec<u64>) -> u64{
      not_sure_yet(problems, thing.clone())
 }
 
-fn all_is_hash(word: &Vec<char>)->bool{
-    word.iter().all(|c| c == &'#')
-}
-
 fn count_init_hash(word: &Vec<char>)->u64{
     let mut count = 0;
     while count < word.len() && word[count] == '#' {
@@ -114,26 +110,15 @@ fn count_init_hash(word: &Vec<char>)->u64{
     count as u64
 }
 
-fn remove_group(groups: &Vec<u64>)->Vec<u64>{
-    let mut result = groups.clone();
-        result.remove(0);
-        result
-}
-
-fn count_q_from_i(problem: &Vec<char>, start_i: usize)->u64{
-    let mut q_count = 0;
-        let mut i = start_i;
-        while i < problem.len() && problem[i] == '?' {
-            q_count+=1;
-            i+=1
-        }
-        q_count
-}
-
 #[cached]
-fn not_sure_yet(problems: Vec<Vec<char>>, groups: Vec<u64>)->u64{  
-    if problems.is_empty() && groups.is_empty(){
-        return 1;
+fn not_sure_yet(mut problems: Vec<Vec<char>>, mut groups: Vec<u64>)->u64{  
+    if problems.is_empty() {
+        if groups.is_empty(){
+            return 1;
+        }
+        else{
+            return 0
+        }
     }
     
     if groups.is_empty() {
@@ -144,30 +129,12 @@ fn not_sure_yet(problems: Vec<Vec<char>>, groups: Vec<u64>)->u64{
         }
     }
     
-    if problems.is_empty(){
-        return 0
-    }
-
-
     let next_group = groups[0];
     let next_problem = & problems[0];
+    
     if next_problem.is_empty(){
-        let mut new_problems = problems.clone();
-        new_problems.remove(0);
-        return not_sure_yet(new_problems, groups);
-    }
-
-    // if all hashtags and same size as group
-    if all_is_hash(next_problem){
-        if next_group == next_problem.len() as u64 {
-            let removed_group = remove_group(&groups);
-            let mut removed_problem = problems.clone();
-            removed_problem.remove(0);
-            return not_sure_yet(removed_problem, removed_group);
-        }
-        else {
-            return 0;
-        }
+        problems.remove(0);
+        return not_sure_yet(problems, groups);
     }
 
     if next_problem[0] == '#'{
@@ -176,33 +143,39 @@ fn not_sure_yet(problems: Vec<Vec<char>>, groups: Vec<u64>)->u64{
             return 0
         }
         if h_count == next_group{
-            let removed_group = remove_group(&groups);
-            // remove hashes plus next, which should be a questionmark
-            // basicly making it a "."
-            let mut new_problem = problems.clone();
+            groups.remove(0);
             
-            new_problem[0].drain(0..((h_count+1) as usize));
-            return not_sure_yet(new_problem, removed_group)
+            if next_group == next_problem.len() as u64{
+                problems.remove(0);
+            }else{
+                problems[0].drain(0..((h_count+1) as usize));
+            }
+            return not_sure_yet(problems, groups)
+        }
+
+        if h_count == next_problem.len() as u64{
+            return 0;
         }
         
-        let q_count = count_q_from_i(next_problem, h_count as usize);
-        
-        if q_count > 0{
-            let mut problem_with_new_hash = problems.clone();
-            problem_with_new_hash[0][h_count as usize] = '#';
-            return not_sure_yet(problem_with_new_hash, groups)
+        if next_problem[h_count as usize] == '?'{
+            problems[0][h_count as usize] = '#';
+            return not_sure_yet(problems, groups)
         }
         
-        panic!("Hash {:?} {:?}, {}", next_problem, next_group, q_count);
+        panic!("Hash {:?} {:?}", next_problem, next_group);
     }
 
     if next_problem[0] == '?'{
             let mut problem_with_new_dot = problems.clone();
-            problem_with_new_dot[0].drain(0..1);
-            let mut problem_with_new_hash = problems.clone();
-            problem_with_new_hash[0][0] = '#';
+            if problem_with_new_dot[0].len() == 1{
+                problem_with_new_dot.remove(0);
+            }else{
+                problem_with_new_dot[0].drain(0..1);
+            }
+            
+            problems[0][0] = '#';
             return not_sure_yet(problem_with_new_dot, groups.clone()) 
-            + not_sure_yet(problem_with_new_hash, groups)
+            + not_sure_yet(problems, groups)
     }
 
     panic!("Fuck {:?}", next_problem);

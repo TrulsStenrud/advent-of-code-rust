@@ -65,6 +65,23 @@ fn move_boulder_north(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)
     dish[start_x-steps][start_y] = BOULDER;
     boulders[boulder_n] = (start_x-steps, start_y);
 }
+fn move_it_north(dish:&mut Vec<Vec<u32>>, boulder: (usize, usize) ){
+    let (start_x, start_y) = boulder;
+    if start_x == 0{
+        return;
+    }
+        
+    let mut steps = 0;
+
+    while steps < start_x && dish[start_x-(steps+1)][start_y] == SPACE {
+        steps+=1
+    }
+    if steps == 0{
+        return;
+    }
+    dish[start_x][start_y] = SPACE;
+    dish[start_x-steps][start_y] = BOULDER;
+}
 fn move_boulder_west(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)>, boulder_n: usize ){
     let (start_x, start_y) = boulders[boulder_n];
     if start_y == 0{
@@ -82,6 +99,24 @@ fn move_boulder_west(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)>
     dish[start_x][start_y] = SPACE;
     dish[start_x][start_y-steps] = BOULDER;
     boulders[boulder_n] = (start_x, start_y-steps);
+}
+
+fn move_it_west(dish:&mut Vec<Vec<u32>>, boulder: (usize, usize)){
+    let (start_x, start_y) = boulder;
+    if start_y == 0{
+        return;
+    }
+        
+    let mut steps = 0;
+
+    while steps < start_y && dish[start_x][start_y-(steps+1)] == SPACE {
+        steps+=1
+    }
+    if steps == 0{
+        return;
+    }
+    dish[start_x][start_y] = SPACE;
+    dish[start_x][start_y-steps] = BOULDER;
 }
 
 fn move_boulder_south(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)>, boulder_n: usize ){
@@ -102,6 +137,23 @@ fn move_boulder_south(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)
     dish[start_x+steps][start_y] = BOULDER;
     boulders[boulder_n] = (start_x+steps, start_y);
 }
+fn move_it_south(dish:&mut Vec<Vec<u32>>, boulder: (usize, usize)){
+    let (start_x, start_y) = boulder;
+    if start_x == dish.len()-1{
+        return;
+    }
+        
+    let mut steps = 0;
+
+    while start_x+steps < dish.len()-1 && dish[start_x+(steps+1)][start_y] == SPACE {
+        steps+=1
+    }
+    if steps == 0{
+        return;
+    }
+    dish[start_x][start_y] = SPACE;
+    dish[start_x+steps][start_y] = BOULDER;
+}
 fn move_boulder_east(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)>, boulder_n: usize ){
     let (start_x, start_y) = boulders[boulder_n];
     if start_y == dish[start_x].len()-1{
@@ -119,6 +171,23 @@ fn move_boulder_east(dish:&mut Vec<Vec<u32>>, boulders: &mut Vec<(usize, usize)>
     dish[start_x][start_y] = SPACE;
     dish[start_x][start_y+steps] = BOULDER;
     boulders[boulder_n] = (start_x, start_y+steps);
+}
+fn move_it_east(dish:&mut Vec<Vec<u32>>, boulder: (usize, usize)){
+    let (start_x, start_y) = boulder;
+    if start_y == dish[start_x].len()-1{
+        return;
+    }
+        
+    let mut steps = 0;
+
+    while start_y+steps < dish[start_x].len()-1 && dish[start_x][start_y+(steps+1)] == SPACE {
+        steps+=1
+    }
+    if steps == 0{
+        return;
+    }
+    dish[start_x][start_y] = SPACE;
+    dish[start_x][start_y+steps] = BOULDER;
 }
 
 fn print_dish(dish: &Vec<Vec<u32>>){
@@ -161,31 +230,27 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut i = 0;
     let result = loop {
         // print_dish(&dish);
-        boulders.sort_by_key(|it| it.0);
-        (0..boulders.len()).for_each(|i|{
-            move_boulder_north(&mut dish, &mut boulders, i);
-        });
+        move_north(&mut boulders, &mut dish);
         // print_dish(&dish);
-        boulders.sort_by_key(|it| it.1);
-        (0..boulders.len()).for_each(|i|{
-            move_boulder_west(&mut dish, &mut boulders, i);
-        });
+        move_west(&mut boulders, &mut dish);
         // print_dish(&dish);
-        boulders.sort_by_key(|it| -(it.0 as i32));
-        (0..boulders.len()).for_each(|i|{
-            move_boulder_south(&mut dish, &mut boulders, i);
-        });
+        move_south(&mut boulders, &mut dish);
         // print_dish(&dish);
-        boulders.sort_by_key(|it| -(it.1 as i32));
-        (0..boulders.len()).for_each(|i|{
-            move_boulder_east(&mut dish, &mut boulders, i);
-        });
+        move_east(&mut boulders, &mut dish);
         // print_dish(&dish);
         let len = dish.len();
-        let curr_value = boulders.iter().map(|(x, _)| (len - x) as u32).sum::<u32>();
+        let curr_value = (0..dish.len()).map(|x| (0..dish[x].len()).map(|y| {
+            if dish[x][y] == BOULDER{
+                len - x
+            }
+            else {
+                0
+            }
+        }).sum::<usize>()).sum::<usize>() as u32;
         // println!("{}", curr_value);
         prev.push(curr_value);
         if i > 40{
+            
             if let Some(a) = find_repeating(&prev){
                 let t = 1000000000-a.0-1;
                 break  a.1[t % a.1.len()];
@@ -201,6 +266,58 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(result)
     // let len = dish.len();
     // Some(boulders.iter().map(|(x, _)| (len - x) as u32).sum())
+}
+
+fn move_east(boulders: &mut Vec<(usize, usize)>, dish: &mut Vec<Vec<u32>>) {
+    // boulders.sort_by_key(|it| -(it.1 as i32));
+    // (0..boulders.len()).for_each(|i|{
+    //     move_boulder_east(dish, boulders, i);
+    // });
+    for j in (0..dish[0].len()).rev(){
+        for i in 0..dish.len(){
+            if dish[i][j] == BOULDER{
+                move_it_east(dish, (i, j));
+            }
+        }
+    }
+}
+
+fn move_south(boulders: &mut Vec<(usize, usize)>, dish: &mut Vec<Vec<u32>>) {
+    // boulders.sort_by_key(|it| -(it.0 as i32));
+    // (0..boulders.len()).for_each(|i|{
+    //     move_boulder_south(dish, boulders, i);
+    // });
+    for i in (0..dish.len()).rev(){
+        for j in 0..dish[i].len(){
+            if dish[i][j] == BOULDER{
+                move_it_south(dish, (i, j));
+            }
+        }
+    }
+}
+
+fn move_west(boulders: &mut Vec<(usize, usize)>, dish: &mut Vec<Vec<u32>>) {
+    for j in 0..dish[0].len(){
+        for i in 0..dish.len(){
+            if dish[i][j] == BOULDER{
+                move_it_west(dish, (i, j));
+            }
+        }
+    }
+}
+
+fn move_north(boulders: &mut Vec<(usize, usize)>, dish: &mut Vec<Vec<u32>>) {
+    for i in 0..dish.len(){
+        for j in 0..dish[i].len(){
+            if dish[i][j] == BOULDER{
+                move_it_north(dish, (i, j));
+            }
+        }
+    }
+    // boulders.sort_by_key(|it| it.0);
+    // (0..boulders.len()).for_each(|i|{
+    //     move_boulder_north(dish, boulders, i);
+    // });
 }
 
 fn find_repeating(v: &Vec<u32>) -> Option<(usize,Vec<u32>)> {
