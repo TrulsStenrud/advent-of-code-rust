@@ -1,3 +1,5 @@
+use std::time::{Instant, Duration};
+
 advent_of_code::solution!(16);
 
 #[derive(Clone, Copy)]
@@ -19,51 +21,20 @@ enum Direction {
     LEFT = 3,
 }
 
-pub fn part_one(input: &str) -> Option<u32> {
-    let mut map = input.lines().map(|line|{
-        line.chars().map(|c|{
-            Tile{c, enirgized: [false;4]}
-        }).collect::<Vec<_>>()
-    }).collect::<Vec<_>>();
-
-    let mut beams =vec![Beam{ x: 0, y: 0, direction: Direction::RIGHT}];
-
-    energize(&mut beams, &mut map);
-    // map.iter().enumerate().for_each(|(i, row)|{
-    //     let light = row.iter().map(|tile|{
-    //         if tile.enirgized.iter().any(|it|*it){
-    //             '#'
-    //         }
-    //         else {'.'}
-    //     }).collect::<String>();
-    //     let mirrors = map[i].iter().map(|tile| tile.c).collect::<String>();
-    //     println!("{:?}, {:?}", light, mirrors);
-    // });
-    Some(count_energized(map))
-    
+fn draw_map(map: &Vec<Vec<Tile>>) {
+    map.iter().enumerate().for_each(|(i, row)|{
+        let light = row.iter().map(|tile|{
+            if tile.enirgized.iter().any(|it|*it){
+                '#'
+            }
+            else {'.'}
+        }).collect::<String>();
+        let mirrors = map[i].iter().map(|tile| tile.c).collect::<String>();
+        println!("{}, {}", light, mirrors);
+    });
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    let map = input.lines().map(|line|{
-        line.chars().map(|c|{
-            Tile{c, enirgized: [false;4]}
-        }).collect::<Vec<_>>()
-    }).collect::<Vec<_>>();
-
-    
-    Some((0..map[0].len()).map(|i|{
-        let mut this_map = map.clone();
-        energize(&mut vec![Beam{
-            x: 0,
-            y: i,
-            direction: Direction::DOWN
-        }], &mut this_map);
-
-        count_energized(this_map)
-    }).max().unwrap())
-}
-
-fn count_energized(map: Vec<Vec<Tile>>) -> u32 {
+fn count_energized(map: &Vec<Vec<Tile>>) -> u32 {
     map.iter().map(|row|{
         row
         .iter()
@@ -72,11 +43,15 @@ fn count_energized(map: Vec<Vec<Tile>>) -> u32 {
 }
 
 fn energize(beams: &mut Vec<Beam>, map: &mut Vec<Vec<Tile>>) {
+    let mut curr_tile: &mut Tile;
+    let mut beams_len:usize;
+
     while beams.len()>0 {
-        let beams_len = beams.len();
+        beams_len = beams.len();
+    
         for i in (0..beams_len).rev(){
         
-            let curr_tile = &mut map[beams[i].x][beams[i].y];
+            curr_tile = &mut map[beams[i].x][beams[i].y];
         
             if curr_tile.enirgized[beams[i].direction as usize]{
                 beams.remove(i);
@@ -138,41 +113,78 @@ fn energize(beams: &mut Vec<Beam>, map: &mut Vec<Vec<Tile>>) {
 }
 
 fn move_in_direction(i: usize, beams: &mut Vec<Beam>, map: &Vec<Vec<Tile>>) {
-    let curr_beam = &mut beams[i];
-    match curr_beam.direction {
+    match beams[i].direction {
         Direction::UP => {
-            if curr_beam.x == 0{
+            if beams[i].x == 0{
                 beams.remove(i);
             }
             else{
-                curr_beam.x-=1;
+                beams[i].x-=1;
             }
         },
         Direction::RIGHT => {
-            if curr_beam.y == map[curr_beam.x].len()-1{
+            if beams[i].y == map[beams[i].x].len()-1{
                 beams.remove(i);
             }
             else{
-                curr_beam.y+=1;
+                beams[i].y+=1;
             }
         },
         Direction::DOWN => {
-            if curr_beam.x == map.len()-1{
+            if beams[i].x == map.len()-1{
                 beams.remove(i);
             }
             else{
-                curr_beam.x+=1;
+                beams[i].x+=1;
             }
         },
         Direction::LEFT => {
-            if curr_beam.y == 0{
+            if beams[i].y == 0{
                 beams.remove(i);
             }
             else{
-                curr_beam.y-=1;
+                beams[i].y-=1;
             }
         },
     }
+}
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let mut map = input.lines().map(|line|{
+        line.chars().map(|c|{
+            Tile{c, enirgized: [false;4]}
+        }).collect::<Vec<_>>()
+    }).collect::<Vec<_>>();
+
+    let mut beams =vec![Beam{ x: 0, y: 0, direction: Direction::RIGHT}];
+
+    energize(&mut beams, &mut map);
+    Some(count_energized(&map))
+    
+}
+
+
+
+pub fn part_two(input: &str) -> Option<u32> {
+    let map = input.lines().map(|line|{
+        line.chars().map(|c|{
+            Tile{c, enirgized: [false;4]}
+        }).collect::<Vec<_>>()
+    }).collect::<Vec<_>>();
+
+        
+    Some((0..map[0].len()).map(|i|{
+    
+        let mut this_map = map.clone();
+        
+        energize(&mut vec![Beam{
+            x: 0,
+            y: i,
+            direction: Direction::DOWN
+        }], &mut this_map);
+
+        count_energized(&this_map)
+    }).max().unwrap())
 }
 
 #[cfg(test)]
